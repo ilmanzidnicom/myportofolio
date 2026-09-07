@@ -14,6 +14,15 @@
     --radius: 4px;
 }
 
+/*https://stackoverflow.com/questions/248011/how-do-i-wrap-text-in-a-pre-tag*/
+pre {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
 body {
     font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--ink);
@@ -25,10 +34,20 @@ h1, .brand {
     font-family: "Space Grotesk", -apple-system, sans-serif;
 }
 
+hr {
+    border-top: 1px solid var(--line);
+}
+
 .container {
     max-width: 960px;
     margin: 0 auto;
     padding: 0 1.5rem;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .site-header {
@@ -176,6 +195,10 @@ h1, .brand {
     border-top: 1px solid var(--line);
 }
 
+.big-break {
+    margin-bottom: 90px;
+}
+
 @media (max-width: 600px) {
     .hero-grid {
         grid-template-columns: 1fr;
@@ -192,4 +215,13 @@ h1, .brand {
     .social-links {
         justify-content: flex-start;
     }
+}
+
+.box {
+    background-color: var(--paper);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    border-width: 1px;
+    box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.4);
+    padding: 25px;
 }
