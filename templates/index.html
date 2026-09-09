@@ -55,23 +55,15 @@
         <section class="ed-history">
             <div class="container">
                 <div class="box">
-                    <h1 style="margin-bottom: 20px; text-align: center;">Education History</h1>
-                    <pre>
-<b>• Elementry School</b>
-2011 – 2018 | SD Islam Al-Azhar 6 Jakapermai
-I got inspired to do computer programming from Roblox LUA.
+                    <h1 style="margin-bottom: 20px; text-align: center;">Education History</h1>                   
+<pre>{% for education_history in all_education_history %}
+<b>• {{ education_history.education_title }}</b>
+{{ education_history.started_at_year }} – {% if education_history.is_ongoing %}Present{% else %}{{ education_history.ended_at_year }}{% endif %} | {{ education_history.school }}
+{{ education_history.description }}
 
-<b>• Junior High</b>
-2018 – 2021 | SMP Islam Al-Azhar 6 Jakapermai
-I learned C# and front-end web development (HTML, CSS)
-
-<b>• High School</b>
-2022 – 2025 | SMAN 8 Bekasi
-I learned Python, CLI based workflow and binaries, and JavaScript.
-
-<b>• College</b>
-2025 – Present | Universitas Indonesia, Faculty of Computer Science
-Here I am today!
+{% empty %}
+<b>Belum ada data.</b>
+{% endfor %}
                     </pre>
                 </div>
             </div>
