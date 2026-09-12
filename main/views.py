@@ -2,10 +2,13 @@ from django.shortcuts import render
 
 from .models import *
 
+global_context = {
+    "name": "Ilman Zidni",
+}
+
 # Create your views here.
 def show_main(request):
     context = {
-        "name": "Ilman Zidni",
         "npm": "2506621951",
         "study_program": "S1 Ilmu Komputer",
         "bio": (
@@ -13,12 +16,11 @@ def show_main(request):
         ),
         "all_education_history": EdHistory.objects.all(),
     }
-    return render(request, "index.html", context)
+    return render(request, "home.html", global_context | context)
 
 
 def show_experience(request):
     context = {
-        "name": "Ilman Zidni",
         "experience_list": Experience.objects.all(),
     }
-    return render(request, "experience.html", context)
+    return render(request, "experience.html", global_context | context)
