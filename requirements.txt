@@ -1,7 +1,7 @@
 asgiref
 certifi
 charset-normalizer
-Django
+Django~=5.0
 gunicorn
 idna
 psycopg2-binary
