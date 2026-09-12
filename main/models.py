@@ -31,8 +31,8 @@ class EdHistory(models.Model):
     education_title = models.CharField(max_length=50)
     school = models.CharField(max_length=200)
     description = models.TextField()
-    started_at_year = models.IntegerField(max_length=4)
-    ended_at_year = models.IntegerField(max_length=4, blank=True, null=True)
+    started_at_year = models.IntegerField()
+    ended_at_year = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.education_title
