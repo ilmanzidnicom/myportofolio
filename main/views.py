@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.contrib import messages
+from django.shortcuts import redirect, render
 
 from .models import *
+from .forms import *
 
 global_context = {
     "name": "Ilman Zidni",
@@ -24,3 +26,23 @@ def show_experience(request):
         "experience_list": Experience.objects.all(),
     }
     return render(request, "experience.html", global_context | context)
+
+def show_projects(request):
+    context = {
+        "project_list": Project.objects.all(),
+    }
+    return render(request, "project.html", global_context | context)
+
+def create_project(request):
+    form = ProjectForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Proyek baru berhasil ditambahkan!")
+        return redirect("main:show_projects")
+
+    context = {
+        "form": form,
+    }
+
+    return render(request, "projects_form.html", global_context | context)
