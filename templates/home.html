@@ -47,11 +47,14 @@
 <b>• {{ education_history.education_title }}</b>
 {{ education_history.started_at_year }} – {% if education_history.is_ongoing %}Present{% else %}{{ education_history.ended_at_year }}{% endif %} | {{ education_history.school }}
 {{ education_history.description }}
-<a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a> <a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</a>
+<a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a> <button popovertarget="delete-edhistory-{{ education_history.id }}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button>
 {% empty %}
 <b>Belum ada data.</b>
 {% endfor %}</pre>
 
+            {% for education_history in all_education_history %}
+                {% include "components/edhistory_delete_modal.html" with education_history=education_history %}
+            {% endfor %}
         </div>
     </div>
 </section>

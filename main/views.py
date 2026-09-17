@@ -114,3 +114,13 @@ def create_education_history(request):
     }
 
     return render(request, "form.html", global_context | context)
+
+def delete_education_history(request, edhistory_id):
+    edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
+
+    if request.method == "POST":
+        edhistory.delete()
+        messages.success(request, "Education berhasil dihapus!")
+        return redirect("main:show_main")
+
+    return redirect("main:show_main")

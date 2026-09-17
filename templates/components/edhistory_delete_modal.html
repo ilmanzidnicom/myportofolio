@@ -1,0 +1,34 @@
+<div id="delete-edhistory-{{ education_history.id }}"
+     class="project-delete-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="delete-edhistory-title-{{ education_history.id }}">
+    <button type="button"
+            class="project-delete-modal__backdrop"
+            popovertarget="delete-edhistory-{{ education_history.id }}"
+            popovertargetaction="hide"
+            aria-label="Tutup konfirmasi hapus"></button>
+    <div class="project-delete-modal__content">
+        <button type="button"
+                class="project-delete-modal__close"
+                popovertarget="delete-edhistory-{{ education_history.id }}"
+                popovertargetaction="hide"
+                aria-label="Tutup konfirmasi hapus">×</button>
+        <h2 id="delete-edhistory-title-{{ education_history.id }}">Hapus Education?</h2>
+        <p>
+            Apakah Anda yakin ingin menghapus
+            <strong>{{ education_history.education_title }}</strong>?
+        </p>
+        <div class="project-delete-modal__actions">
+            <button type="button"
+                    class="button button-secondary"
+                    popovertarget="delete-edhistory-{{ education_history.id }}"
+                    popovertargetaction="hide">Batal</button>
+            <form method="post" action="{% url 'main:delete_education_history' education_history.id %}">
+                {% csrf_token %}
+                <button type="submit" class="button button-danger">Ya, Hapus</button>
+            </form>
+        </div>
+    </div>
+</div>
