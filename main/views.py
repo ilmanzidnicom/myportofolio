@@ -13,13 +13,21 @@ global_context = {
 
 # Create your views here.
 def show_main(request):
+    json_response = get_education_history_json(request)
+
+    all_education_history = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    all_education_history = [edhistory.object for edhistory in all_education_history]
+
     context = {
         "npm": "2506621951",
         "study_program": "S1 Ilmu Komputer",
         "bio": (
             "Hi there! My name is Ilman Zidni. I love computers, and I’m currently a student of Universitas Indonesia in Fasilkom! I’m always striving to learn new and exciting things about computers and technology. I love tackling projects, from building websites to tinkering with new programming languages and frameworks, because I learn best by trial and error. I enjoy sharing what I’ve learned with others, whether that’s helping a friend with their computer problems or contributing to projects."
         ),
-        "all_education_history": EdHistory.objects.all(),
+        "all_education_history": all_education_history,
     }
     return render(request, "home.html", global_context | context)
 
@@ -83,6 +91,11 @@ def delete_project(request, project_id):
         return redirect("main:show_projects")
 
     return redirect("main:show_projects")
+
+def get_education_history_json(request):
+    all_education_history = EdHistory.objects.all()
+    all_education_history_json = serializers.serialize("json", all_education_history)
+    return HttpResponse(all_education_history_json, content_type="application/json")
 
 def create_education_history(request):
     form = EdHistoryForm(request.POST or None)

@@ -11,5 +11,6 @@ urlpatterns = [
     path("api/projects/", get_projects_json, name="get_projects_json"),
     path("projects/add/", create_project, name="create_project"),
     path("projects/<uuid:project_id>/delete/", delete_project, name="delete_project"),
+    path("api/edhistory/", get_education_history_json, name="get_education_history_json"),
     path("edhistory/add/", create_education_history, name="create_education_history"),
 ]
