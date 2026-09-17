@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from .models import *
 from .forms import *
@@ -60,14 +61,18 @@ def create_project(request):
 
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Proyek baru berhasil ditambahkan!")
+        messages.success(request, "Project baru berhasil ditambahkan!")
         return redirect("main:show_projects")
 
     context = {
         "form": form,
+        "page_title": "Add New Project",
+        "post_form_url": reverse("main:create_project"),
+        "submit_button_text": "Add Project",
+        "cancel_button_url": reverse("main:show_projects"),
     }
 
-    return render(request, "projects_form.html", global_context | context)
+    return render(request, "form.html", global_context | context)
 
 def delete_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)

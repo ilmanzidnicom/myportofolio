@@ -10,7 +10,7 @@
             <a href="{% url 'main:create_project' %}"
                 class="button project-add-button">
                 <span aria-hidden="true">+</span>
-                Tambah Projek
+                Tambah Project
             </a>
         </div>
         <form method="get"
@@ -19,9 +19,9 @@
             <input type="search"
                     name="title"
                     value="{{ title_query }}"
-                    placeholder="Cari berdasarkan nama proyek"
+                    placeholder="Cari berdasarkan nama project"
                     class="project-search__input"
-                    aria-label="Cari berdasarkan nama proyek">
+                    aria-label="Cari berdasarkan nama project">
             <button type="submit" class="button">Cari</button>
         </form>
         <div class="experience-grid project-grid">
@@ -46,9 +46,9 @@
                 </article>
             {% empty %}
                 {% if title_query %}
-                    <p class="empty-state">Tidak ada proyek dengan nama tersebut.</p>
+                    <p class="empty-state">Tidak ada project dengan nama tersebut.</p>
                 {% else %}
-                    <p class="empty-state">Belum ada proyek yang ditambahkan.</p>
+                    <p class="empty-state">Belum ada project yang ditambahkan.</p>
                 {% endif %}
             {% endfor %}
         </div>

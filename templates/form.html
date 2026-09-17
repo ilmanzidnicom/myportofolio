@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Add Project{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
 
 {% block main %}
 <section class="experience-section">
     <div class="container" style="flex-direction: column;">
-        <h1>Add New Projects</h1>
-        <form method="post" action="{% url 'main:create_project' %}" class="project-form">
+        <h1>{{ page_title }}</h1>
+        <form method="post" action="{{ post_form_url }}" class="project-form">
             {% csrf_token %}
             {% for field in form %}
                 <div class="form-group">
@@ -16,8 +16,8 @@
                     {% endfor %}
                 </div>
             {% endfor %}
-            <button type="submit" class="button">Tambah Project</button>
-            <a href="{% url 'main:show_projects' %}" class="button button-secondary">Batal</a>
+            <button type="submit" class="button">{{ submit_button_text }}</button>
+            <a href="{{ cancel_button_url }}" class="button button-secondary">Batal</a>
         </form>
     </div>
 </section>

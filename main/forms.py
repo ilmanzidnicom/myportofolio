@@ -14,11 +14,11 @@ class ProjectForm(ModelForm):
         ]
 
         labels = {
-            "title": "Nama Proyek",
-            "description": "Deskripsi Proyek",
+            "title": "Nama Project",
+            "description": "Deskripsi Project",
             "tech_stack": "Teknologi yang Digunakan",
-            "project_url": "URL Proyek",
-            "project_image_url": "URL Gambar Proyek",
+            "project_url": "URL Project",
+            "project_image_url": "URL Gambar Project",
         }
 
         widgets = {
@@ -30,7 +30,7 @@ class ProjectForm(ModelForm):
             ),
             "description": Textarea(
                 attrs={
-                    "placeholder": "Ceritakan Proyekmu",
+                    "placeholder": "Ceritakan Projectmu",
                     "rows": 3,
                 }
             ),
