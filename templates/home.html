@@ -38,11 +38,16 @@
     <div class="container">
         <div class="box">
             <h1 style="margin-bottom: 20px; text-align: center;">Education History</h1> 
+            <a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px;" class="button project-add-button">
+                <span aria-hidden="true">+</span>
+                Tambah Education
+            </a>
 
 <pre>{% for education_history in all_education_history %}
 <b>• {{ education_history.education_title }}</b>
 {{ education_history.started_at_year }} – {% if education_history.is_ongoing %}Present{% else %}{{ education_history.ended_at_year }}{% endif %} | {{ education_history.school }}
 {{ education_history.description }}
+<a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a> <a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</a>
 {% empty %}
 <b>Belum ada data.</b>
 {% endfor %}</pre>

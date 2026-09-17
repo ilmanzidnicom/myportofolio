@@ -83,3 +83,21 @@ def delete_project(request, project_id):
         return redirect("main:show_projects")
 
     return redirect("main:show_projects")
+
+def create_education_history(request):
+    form = EdHistoryForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Project baru berhasil ditambahkan!")
+        return redirect("main:show_main")
+
+    context = {
+        "form": form,
+        "page_title": "Add New Education",
+        "post_form_url": reverse("main:create_education_history"),
+        "submit_button_text": "Add Education",
+        "cancel_button_url": reverse("main:show_main"),
+    }
+
+    return render(request, "form.html", global_context | context)

@@ -1,6 +1,56 @@
-from django.forms import ModelForm, TextInput, Textarea, URLInput
+from django.forms import ModelForm, TextInput, Textarea, URLInput, NumberInput
 
 from .models import *
+
+class EdHistoryForm(ModelForm):
+    class Meta:
+        model = EdHistory
+        fields = [
+            "education_title",
+            "school",
+            "description",
+            "started_at_year",
+            "ended_at_year",
+        ]
+
+        labels = {
+            "education_title": "Education Title",
+            "school": "School",
+            "description": "Description",
+            "started_at_year": "Started at Year",
+            "ended_at_year": "Ended at Year",
+        }
+
+        widgets = {
+            "education_title": TextInput(
+                attrs={
+                    "placeholder": "High School",
+                    "maxlength": 50,
+                }
+            ),
+            "school": TextInput(
+                attrs={
+                    "placeholder": "SMAN 8 Bekasi",
+                    "maxlength": 200,
+                }
+            ),
+            "description": Textarea(
+                attrs={
+                    "placeholder": "Ceritakan pengalamanmu.",
+                    "rows": 3,
+                }
+            ),
+            "started_at_year": NumberInput(
+                attrs={
+                    "placeholder": 2010
+                }
+            ),
+            "ended_at_year": NumberInput(
+                attrs={
+                    "placeholder": 2015
+                }
+            ),
+        }
 
 class ProjectForm(ModelForm):
     class Meta:
