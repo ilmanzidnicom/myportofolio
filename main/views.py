@@ -115,6 +115,26 @@ def create_education_history(request):
 
     return render(request, "form.html", global_context | context)
 
+def update_education_history(request, edhistory_id):
+    edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
+
+    form = EdHistoryForm(request.POST or None, instance=edhistory)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Project berhasil diupdate!")
+        return redirect("main:show_main")
+
+    context = {
+        "form": form,
+        "page_title": "Update Education",
+        "post_form_url": reverse("main:update_education_history", kwargs={"edhistory_id": edhistory_id}),
+        "submit_button_text": "Update Education",
+        "cancel_button_url": reverse("main:show_main"),
+    }
+
+    return render(request, "form.html", global_context | context)
+
 def delete_education_history(request, edhistory_id):
     edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
 

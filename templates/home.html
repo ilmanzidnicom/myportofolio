@@ -36,7 +36,7 @@
 
 <section class="ed-history">
     <div class="container">
-        <div class="box">
+        <div class="box" style="max-width: 600px;">
             <h1 style="margin-bottom: 20px; text-align: center;">Education History</h1> 
             <a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px;" class="button project-add-button">
                 <span aria-hidden="true">+</span>
@@ -47,7 +47,7 @@
 <b>• {{ education_history.education_title }}</b>
 {{ education_history.started_at_year }} – {% if education_history.is_ongoing %}Present{% else %}{{ education_history.ended_at_year }}{% endif %} | {{ education_history.school }}
 {{ education_history.description }}
-<a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a> <button popovertarget="delete-edhistory-{{ education_history.id }}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button>
+<a href="{% url 'main:update_education_history' education_history.id %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a> <button popovertarget="delete-edhistory-{{ education_history.id }}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button>
 {% empty %}
 <b>Belum ada data.</b>
 {% endfor %}</pre>
