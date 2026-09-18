@@ -3,6 +3,7 @@ from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 from .models import *
 from .forms import *
@@ -64,6 +65,7 @@ def get_projects_json(request):
     projects_json = serializers.serialize("json", projects)
     return HttpResponse(projects_json, content_type="application/json")
 
+@login_required(login_url="/admin/login/")
 def create_project(request):
     form = ProjectForm(request.POST or None)
 
@@ -82,6 +84,7 @@ def create_project(request):
 
     return render(request, "form.html", global_context | context)
 
+@login_required(login_url="/admin/login/")
 def delete_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -97,6 +100,7 @@ def get_education_history_json(request):
     all_education_history_json = serializers.serialize("json", all_education_history)
     return HttpResponse(all_education_history_json, content_type="application/json")
 
+@login_required(login_url="/admin/login/")
 def create_education_history(request):
     form = EdHistoryForm(request.POST or None)
 
@@ -115,6 +119,7 @@ def create_education_history(request):
 
     return render(request, "form.html", global_context | context)
 
+@login_required(login_url="/admin/login/")
 def update_education_history(request, edhistory_id):
     edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
 
@@ -135,6 +140,7 @@ def update_education_history(request, edhistory_id):
 
     return render(request, "form.html", global_context | context)
 
+@login_required(login_url="/admin/login/")
 def delete_education_history(request, edhistory_id):
     edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
 

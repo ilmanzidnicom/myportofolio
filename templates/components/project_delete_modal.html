@@ -1,3 +1,4 @@
+{% if user.is_authenticated %}
 <p class="experience-status">
     <button type="button"
             class="button button-danger"
@@ -7,6 +8,7 @@
         Hapus Project
     </button>
 </p>
+{% endif %}
 <div id="delete-project-{{ project.id }}"
      class="project-delete-modal"
      popover="auto"
