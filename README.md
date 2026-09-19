@@ -31,3 +31,19 @@ Kelas : PBP B
 Beberapa masalah yang saya pecahkan adalah:
 1. Di antara *template* `index.html` dan `experience.html`, saya sering kali lupa untuk mengganti elemen-elemen yang berada pada kedua html ketika saya mengganti elemen pada salah satu saja. Jadi saya menggunakan `{% extends %}` dan `{% block %}` untuk menghindari repetisi. Saya mendapatkan referensi tersebut dari [Learn Django in 20 Minutes!!](https://www.youtube.com/watch?v=nGIg40xs9e4).
 2. Untuk konsep baru seperti aplikasi, *database*, *model class*, *Jinja*, dan *unit test*, saya mengikuti alur dan *syntax* yang sudah dicontohkan pada tutorial 2.
+
+## Tugas 3
+1. Kita menggunakan `ModelForm` karena `ModelForm` memudahkan kita untuk membuat sebuah *form* dengan struktur data yang lebih simpel dan konsisten. Struktur data `ModelForm` dapat dikonversi ke halaman HTML dengan hanya menyatakan `{% for field in form %}` pada template. `{% csrf_token %}` dapat melindungi form dari *exploit* *Cross-Site Request Forgery*. Di mana HTML dari website lain dapat menaruh url POST request website kita pada form yang mereka buat. Dan form tersebut bisa terdapat data yang sudah dipopulasikan oleh data mereka, sehingga mereka bisa mengirim POST request atas nama kita tanpa kita menyetujui. `{% csrf_token %}` meletakkan *invisible field* pada form HTML yang sudah dipopulasikan dengan token unik. Jika pengguna *submit* form tersebut, token tersebut juga ikut terkirim. Jika token tersebut tidak sesuai atau tidak ada, maka Django akan menolak POST request yang dikirim oleh *client*.
+2. JSON lebih disukai dibandingkan XML karena JSON memiliki format data yang lebih ringkas dan pendek dibanding XML. XML memerlukan struktur *tag*, sehingga pada akhirnya menghasilkan data yang lebih besar.
+3. Kita perlu melakukan *serialization* karena struktur data *class* python belum dalam bentuk JSON, sehingga kita harus mengubahnya dulu ke format JSON melalui *serialization*.
+Alur yang terjadi pada fungsi view yang mengembalikan data portofolio dalam bentuk JSON adalah:
+    1. Mengambil semua data pada class model dengan cara `<Model>.object.all()`
+    2. *Serialize* data ke json menggunakan `serializers.serialize()`
+    3. Lalu mengembalikan data yang sudah di-*serialize* menggunakan `HttpResponse()` dengan `content_type="application/json"`
+
+#### AI Disclosure Pada Tugas 3
+*Saya tidak menggunakan AI pada tugas 3.*
+
+Beberapa masalah yang saya pecahkan adalah:
+1. Untuk form update data, saya menggunakan [Python Django Tutorial #9: Django Update Form, Django Update View](https://www.youtube.com/watch?v=Xin4hjyMe6E) sebagai referensi.
+2. Untuk autentikasi, saya mendapatkan info dari teman saya [Ahmad Rafa Robyan [NPM: 2506620721]](https://github.com/Reigits) bahwa *decorator* `@login_required()` dan `{% if user.is_authenticated %}` dapat dipakai sebagai autentikasi sederhana dari bawaan Django.
