@@ -548,3 +548,8 @@ hr {
         text-align: center;
     }
 }
+
+.nav-user {
+    color: var(--accent);
+    font-weight: bold;
+}

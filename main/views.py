@@ -4,6 +4,9 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import login, logout
+from django.core.exceptions import PermissionDenied 
 
 from .models import *
 from .forms import *
@@ -65,8 +68,11 @@ def get_projects_json(request):
     projects_json = serializers.serialize("json", projects)
     return HttpResponse(projects_json, content_type="application/json")
 
-@login_required(login_url="/admin/login/")
+@login_required(login_url="/login/")
 def create_project(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
     form = ProjectForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
@@ -84,8 +90,11 @@ def create_project(request):
 
     return render(request, "form.html", global_context | context)
 
-@login_required(login_url="/admin/login/")
+@login_required(login_url="/login/")
 def delete_project(request, project_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
     project = get_object_or_404(Project, pk=project_id)
 
     if request.method == "POST":
@@ -100,8 +109,11 @@ def get_education_history_json(request):
     all_education_history_json = serializers.serialize("json", all_education_history)
     return HttpResponse(all_education_history_json, content_type="application/json")
 
-@login_required(login_url="/admin/login/")
+@login_required(login_url="/login/")
 def create_education_history(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
     form = EdHistoryForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
@@ -119,8 +131,11 @@ def create_education_history(request):
 
     return render(request, "form.html", global_context | context)
 
-@login_required(login_url="/admin/login/")
+@login_required(login_url="/login/")
 def update_education_history(request, edhistory_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
     edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
 
     form = EdHistoryForm(request.POST or None, instance=edhistory)
@@ -140,8 +155,11 @@ def update_education_history(request, edhistory_id):
 
     return render(request, "form.html", global_context | context)
 
-@login_required(login_url="/admin/login/")
+@login_required(login_url="/login/")
 def delete_education_history(request, edhistory_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
 
     if request.method == "POST":
@@ -149,4 +167,33 @@ def delete_education_history(request, edhistory_id):
         messages.success(request, "Education berhasil dihapus!")
         return redirect("main:show_main")
 
+    return redirect("main:show_main")
+
+def register(request):
+    form = UserCreationForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Akun berhasil dibuat. Silakan login.")
+        return redirect("main:login")
+
+    context = {
+        "form": form,
+    }
+    return render(request, "register.html", global_context | context)
+
+def login_user(request):
+    form = AuthenticationForm(request, data=request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        login(request, form.get_user())
+        return redirect("main:show_main")
+
+    context = {
+        "form": form,
+    }
+    return render(request, "login.html", global_context | context)
+
+def logout_user(request):
+    logout(request)
     return redirect("main:show_main")
