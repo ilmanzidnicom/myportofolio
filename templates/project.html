@@ -7,7 +7,7 @@
         <p class="section-kicker">Karya yang saya bangun</p>
         <div class="project-header">
             <h1>Projects</h1>
-            {% if user.is_authenticated %}
+            {% if user.is_superuser %}
             <a href="{% url 'main:create_project' %}"
                 class="button project-add-button">
                 <span aria-hidden="true">+</span>
@@ -42,6 +42,7 @@
                             {% if project.project_url %}
                                 <a href="{{ project.project_url }}" class="button">Lihat Project</a>
                             {% endif %}
+                            {% include "components/project_star.html" with project=project %}
                             {% include "components/project_delete_modal.html" with project=project %}
                         </div>
                     </div>
