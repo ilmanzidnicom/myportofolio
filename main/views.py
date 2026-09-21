@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import login, logout
 from django.core.exceptions import PermissionDenied 
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from .models import *
 from .forms import *
@@ -17,6 +19,7 @@ global_context = {
 
 # Create your views here.
 def show_main(request):
+    last_login = request.COOKIES.get('last_login')
     json_response = get_education_history_json(request)
 
     all_education_history = serializers.deserialize(
@@ -32,6 +35,7 @@ def show_main(request):
             "Hi there! My name is Ilman Zidni. I love computers, and I’m currently a student of Universitas Indonesia in Fasilkom! I’m always striving to learn new and exciting things about computers and technology. I love tackling projects, from building websites to tinkering with new programming languages and frameworks, because I learn best by trial and error. I enjoy sharing what I’ve learned with others, whether that’s helping a friend with their computer problems or contributing to projects."
         ),
         "all_education_history": all_education_history,
+        "last_login": last_login,
     }
     return render(request, "home.html", global_context | context)
 
@@ -187,7 +191,10 @@ def login_user(request):
 
     if request.method == "POST" and form.is_valid():
         login(request, form.get_user())
-        return redirect("main:show_main")
+
+        response = redirect("main:show_main")
+        response.set_cookie('last_login', datetime.now(ZoneInfo("Asia/Jakarta")).strftime('%Y-%m-%d %H:%M:%S'))
+        return response
 
     context = {
         "form": form,
@@ -196,4 +203,6 @@ def login_user(request):
 
 def logout_user(request):
     logout(request)
-    return redirect("main:show_main")
+    response = redirect("main:show_main")
+    response.delete_cookie('last_login')
+    return response

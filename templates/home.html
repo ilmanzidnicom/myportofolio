@@ -24,6 +24,12 @@
                     <dt>Program</dt>
                     <dd>{{ study_program }}</dd>
                 </div>
+                {% if last_login %}
+                <div class="meta-row">
+                    <dt>Sesi Terakhir Login</dt>
+                    <dd>{{ last_login }}</dd>
+                </div>
+                {% endif %}
             </dl>
             <div class="social-links">
                 <a href="https://github.com/ilmanzidnicom/" class="social-link">GitHub</a>
