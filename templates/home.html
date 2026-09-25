@@ -44,7 +44,7 @@
     <div class="container">
         <div class="box" style="max-width: 600px;">
             <h1 style="margin-bottom: 20px; text-align: center;">Education History</h1> 
-            {% if user.is_superuser %}
+            {% if perms.main.add_edhistory %}
             <a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px;" class="button project-add-button">
                 <span aria-hidden="true">+</span>
                 Tambah Education
@@ -56,7 +56,7 @@
 <b>• {{ education_history.education_title }}</b>
 {{ education_history.started_at_year }} – {% if education_history.is_ongoing %}Present{% else %}{{ education_history.ended_at_year }}{% endif %} | {{ education_history.school }}
 {{ education_history.description }}
-{% if user.is_superuser %}<a href="{% url 'main:update_education_history' education_history.id %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a> <button popovertarget="delete-edhistory-{{ education_history.id }}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button>{% endif %}
+{% if perms.main.change_edhistory %}<a href="{% url 'main:update_education_history' education_history.id %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a>{% endif %} {% if perms.main.delete_edhistory %}<button popovertarget="delete-edhistory-{{ education_history.id }}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button>{% endif %}
 </pre>
 {% empty %}
 <pre><b>Belum ada data.</b></pre>
