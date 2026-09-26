@@ -1,4 +1,4 @@
-{% if user.is_superuser %}
+{% if perms.main.delete_project %}
 <p class="experience-status">
     <button type="button"
             class="button button-danger"

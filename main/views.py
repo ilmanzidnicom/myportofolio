@@ -74,7 +74,7 @@ def get_projects_json(request):
 
 @login_required(login_url="/login/")
 def create_project(request):
-    if not request.user.is_superuser:
+    if not request.user.has_perm("main.add_project"):
         raise PermissionDenied
 
     form = ProjectForm(request.POST or None)
@@ -96,7 +96,7 @@ def create_project(request):
 
 @login_required(login_url="/login/")
 def delete_project(request, project_id):
-    if not request.user.is_superuser:
+    if not request.user.has_perm("main.delete_project"):
         raise PermissionDenied
 
     project = get_object_or_404(Project, pk=project_id)
@@ -127,7 +127,7 @@ def get_education_history_json(request):
 
 @login_required(login_url="/login/")
 def create_education_history(request):
-    if not request.user.is_superuser:
+    if not request.user.has_perm("main.add_edhistory"):
         raise PermissionDenied
 
     form = EdHistoryForm(request.POST or None)
@@ -149,7 +149,7 @@ def create_education_history(request):
 
 @login_required(login_url="/login/")
 def update_education_history(request, edhistory_id):
-    if not request.user.is_superuser:
+    if not request.user.has_perm("main.change_edhistory"):
         raise PermissionDenied
 
     edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
@@ -173,7 +173,7 @@ def update_education_history(request, edhistory_id):
 
 @login_required(login_url="/login/")
 def delete_education_history(request, edhistory_id):
-    if not request.user.is_superuser:
+    if not request.user.has_perm("main.delete_edhistory"):
         raise PermissionDenied
     
     edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
