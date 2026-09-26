@@ -47,3 +47,12 @@ Alur yang terjadi pada fungsi view yang mengembalikan data portofolio dalam bent
 Beberapa masalah yang saya pecahkan adalah:
 1. Untuk form update data, saya menggunakan [Python Django Tutorial #9: Django Update Form, Django Update View](https://www.youtube.com/watch?v=Xin4hjyMe6E) sebagai referensi.
 2. Untuk autentikasi, saya mendapatkan info dari teman saya [Ahmad Rafa Robyan [NPM: 2506620721]](https://github.com/Reigits) bahwa *decorator* `@login_required()` dan `{% if user.is_authenticated %}` dapat dipakai sebagai autentikasi sederhana dari bawaan Django.
+
+## Tugas 4
+
+#### AI Disclosure Pada Tugas 4:
+*Saya tidak menggunakan AI pada tugas 4.*
+
+Untuk autentikasi saya sudah menerapkannya pada tugas 3.
+
+Untuk konsep baru seperti permissions, saya mendapatkan referensi dari [Check permission inside a template in Django](https://stackoverflow.com/questions/9469590/check-permission-inside-a-template-in-django) dan `Petunjuk Implementasi Peran Editor` pada halaman tugas 4.
