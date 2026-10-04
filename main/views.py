@@ -195,6 +195,24 @@ def create_education_history(request):
 
     return render(request, "form.html", global_context | context)
 
+@require_POST
+def create_education_history_ajax(request):
+    if not request.user.has_perm("main.add_edhistory"):
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan Education History."},
+            status=403,
+        )
+
+    form = EdHistoryForm(request.POST)
+    if form.is_valid():
+        edhistory = form.save()
+        return JsonResponse(
+            {"message": "Education History berhasil ditambahkan.", "pk": str(edhistory.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
 @login_required(login_url="/login/")
 def update_education_history(request, edhistory_id):
     if not request.user.has_perm("main.change_edhistory"):
