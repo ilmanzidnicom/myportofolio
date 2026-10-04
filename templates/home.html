@@ -43,7 +43,13 @@
 <section class="ed-history">
     <div class="container">
         <div id="ed-history-box" class="box" style="max-width: 600px;">
-            <h1 style="margin-bottom: 20px; text-align: center;">Education History</h1> 
+            <h1 style="margin-bottom: 20px; text-align: center;">Education History</h1>
+            <input type="number"
+                    id="search-year-input"
+                    placeholder="Cari berdasarkan tahun (e.g. 2022)"
+                    class="project-search__input"
+                    aria-label="Cari berdasarkan tahun (e.g. 2022)"
+                    style="margin-bottom: 18px;">
             {% if perms.main.add_edhistory %}
             <a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px;" class="button project-add-button">
                 <span aria-hidden="true">+</span>
@@ -79,6 +85,8 @@
 
 <script>
     let edhistoryAbortController;
+    let searchDebounceTimer;
+    const SEARCH_DEBOUNCE_DELAY = 300;
     const GET_EDUCATION_HISTORY_BASE_URL = "{% url 'main:get_education_history_json' %}";
     const HAS_PERM_ADD_EDHISTORY = "{{ perms.main.add_edhistory|yesno:'true,false' }}" === "true";
     const HAS_PERM_CHANGE_EDHISTORY = "{{ perms.main.change_edhistory|yesno:'true,false' }}" === "true";
@@ -161,6 +169,14 @@
         document.getElementById("edhistory-empty").classList.toggle('hide', !showEmpty);
         document.querySelectorAll('#edhistory-element').forEach(e => e.classList.toggle('hide', !showElement));
     }
+
+    document.getElementById("search-year-input").addEventListener("input", function() {
+        clearTimeout(searchDebounceTimer);
+
+        searchDebounceTimer = setTimeout(function() {
+            fetchEducationHistory(document.getElementById("search-year-input").value.trim());
+        }, SEARCH_DEBOUNCE_DELAY);
+    });
 
 </script>
 {% endblock %}
