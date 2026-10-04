@@ -42,7 +42,7 @@
 
 <section class="ed-history">
     <div class="container">
-        <div class="box" style="max-width: 600px;">
+        <div id="ed-history-box" class="box" style="max-width: 600px;">
             <h1 style="margin-bottom: 20px; text-align: center;">Education History</h1> 
             {% if perms.main.add_edhistory %}
             <a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px;" class="button project-add-button">
@@ -51,21 +51,116 @@
             </a>
             {% endif %}
 
-{% for education_history in all_education_history %}
-<pre>
-<b>• {{ education_history.education_title }}</b>
-{{ education_history.started_at_year }} – {% if education_history.is_ongoing %}Present{% else %}{{ education_history.ended_at_year }}{% endif %} | {{ education_history.school }}
-{{ education_history.description }}
-{% if perms.main.change_edhistory %}<a href="{% url 'main:update_education_history' education_history.id %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a>{% endif %} {% if perms.main.delete_edhistory %}<button popovertarget="delete-edhistory-{{ education_history.id }}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button>{% endif %}
-</pre>
-{% empty %}
-<pre><b>Belum ada data.</b></pre>
-{% endfor %}
 
-            {% for education_history in all_education_history %}
-                {% include "components/edhistory_delete_modal.html" with education_history=education_history %}
-            {% endfor %}
+<!-- Loading State -->
+<pre id="edhistory-loading" class="hide"><b>Memuat Education History...</b></pre>
+
+<!-- Empty State -->
+<pre id="edhistory-empty" class="hide"><b>Data kosong atau tidak ditemukan.</b></pre>
+
+<!-- Error State -->
+<pre id="edhistory-error" class="hide"><b>Gagal memuat data Education History. Silakan coba lagi.</b></pre>
+
+
+<template id="edhistory-element-template">
+<pre id="edhistory-element" class="hide">
+<b>• <span id="education-title">High School</span></b>
+<span id="started-at-year">2022</span> – <span id="ended-at-year">2025</span> | <span id="school">SMAN 8 Bekasi</span>
+<span id="description">I learned Python, CLI based workflow and binaries, and JavaScript.</span>
+<a id="update-education-btn" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a> <form id="delete-education-form" method="post" style="display:inline;">{% csrf_token %}<button id="delete-education-btn" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button></form></pre>
+</pre>
+</template>
+
+
         </div>
     </div>
 </section>
+
+
+<script>
+    let edhistoryAbortController;
+    const GET_EDUCATION_HISTORY_BASE_URL = "{% url 'main:get_education_history_json' %}";
+    const HAS_PERM_ADD_EDHISTORY = "{{ perms.main.add_edhistory|yesno:'true,false' }}" === "true";
+    const HAS_PERM_CHANGE_EDHISTORY = "{{ perms.main.change_edhistory|yesno:'true,false' }}" === "true";
+    const HAS_PERM_DELETE_EDHISTORY = "{{ perms.main.delete_edhistory|yesno:'true,false' }}" === "true";
+
+    function buildEducationHistoryElement(item) {
+        const edhistory = item.fields;
+        const edhistoryId = item.pk;
+
+        const education_title = edhistory.education_title
+        const school = edhistory.school
+        const description = edhistory.description
+        const started_at_year = edhistory.started_at_year
+        const ended_at_year = edhistory.ended_at_year
+
+        const edhistoryElementTemplate = document.getElementById("edhistory-element-template");
+        const clone = edhistoryElementTemplate.content.cloneNode(true)
+
+        clone.getElementById("education-title").textContent = education_title;
+        clone.getElementById("school").textContent = school;
+        clone.getElementById("description").textContent = description;
+        clone.getElementById("started-at-year").textContent = started_at_year;
+        clone.getElementById("ended-at-year").textContent = ended_at_year;
+
+        const updateUrl = "{% url 'main:update_education_history' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', edhistoryId);
+
+        const deleteUrl = "{% url 'main:delete_education_history' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', edhistoryId);
+
+        clone.getElementById("update-education-btn").href = updateUrl;
+        clone.getElementById("delete-education-form").action = deleteUrl;
+        clone.getElementById("delete-education-btn").onclick = () => {return confirm('Yakin ingin menghapus Education History ini?');}
+
+        if (!HAS_PERM_CHANGE_EDHISTORY) clone.getElementById("update-education-btn").remove();
+        if (!HAS_PERM_DELETE_EDHISTORY) clone.getElementById("delete-education-btn").remove();
+
+        edhistoryElementTemplate.before(clone);
+    }
+
+    async function fetchEducationHistory(educationYearQuery = "") {
+        if (edhistoryAbortController) edhistoryAbortController.abort();
+        edhistoryAbortController = new AbortController();
+
+        try {
+            displayPageSection({ showLoading: true });
+            const url = educationYearQuery ? `${GET_EDUCATION_HISTORY_BASE_URL}?education-year=${encodeURIComponent(educationYearQuery)}` : GET_EDUCATION_HISTORY_BASE_URL;
+        
+            const response = await fetch(url, {
+                headers: { 'Accept': 'application/json' },
+                signal: edhistoryAbortController.signal,
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch data');
+
+            const educationHistoryData = await response.json();
+
+            if (educationHistoryData.length === 0) {
+                displayPageSection({ showEmpty: true });
+            }
+            else {
+                document.querySelectorAll('#edhistory-element').forEach(e => e.remove());
+                educationHistoryData.forEach(item => {
+                    buildEducationHistoryElement(item)
+                    displayPageSection({ showElement: true });
+                })
+            }
+        }
+        catch (error) {
+            if (error.name === 'AbortError') return;
+            console.error('Error loading projects:', error);
+            displayPageSection({ showError: true });
+        }
+    }
+    fetchEducationHistory();
+
+    function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showElement = false }) {
+        document.getElementById("edhistory-loading").classList.toggle('hide', !showLoading);
+        document.getElementById("edhistory-error").classList.toggle('hide', !showError);
+        document.getElementById("edhistory-empty").classList.toggle('hide', !showEmpty);
+        document.querySelectorAll('#edhistory-element').forEach(e => e.classList.toggle('hide', !showElement));
+    }
+
+</script>
 {% endblock %}
