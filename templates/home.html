@@ -51,10 +51,10 @@
                     aria-label="Cari berdasarkan tahun (e.g. 2022)"
                     style="margin-bottom: 18px;">
             {% if perms.main.add_edhistory %}
-            <a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px;" class="button project-add-button">
+            <button popovertarget="add-edhistory-modal" style="margin-bottom: 20px;" class="button project-add-button">
                 <span aria-hidden="true">+</span>
                 Tambah Education
-            </a>
+            </button>
             {% endif %}
 
 
@@ -82,6 +82,9 @@
     </div>
 </section>
 
+{% if perms.main.add_edhistory %}
+    {% include "components/edhistory_form_modal.html" %}
+{% endif %}
 
 <script>
     let edhistoryAbortController;
@@ -169,7 +172,9 @@
         document.getElementById("edhistory-empty").classList.toggle('hide', !showEmpty);
         document.querySelectorAll('#edhistory-element').forEach(e => e.classList.toggle('hide', !showElement));
     }
+    
 
+    // Search
     document.getElementById("search-year-input").addEventListener("input", function() {
         clearTimeout(searchDebounceTimer);
 
@@ -177,6 +182,63 @@
             fetchEducationHistory(document.getElementById("search-year-input").value.trim());
         }, SEARCH_DEBOUNCE_DELAY);
     });
+
+
+    // Add Education History
+    const CREATE_EDUCATION_HISTORY_URL = "{% url 'main:create_education_history_ajax' %}";
+    const edhistoryForm = document.getElementById('edhistory-form');
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function addEducationHistory(event) {
+        event.preventDefault();
+
+        const submitButton = edhistoryForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch(CREATE_EDUCATION_HISTORY_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: new FormData(edhistoryForm),
+            });
+            const result = await response.json().catch(() => ({}));
+
+            if (response.ok) {
+                edhistoryForm.reset();
+                document.getElementById("add-edhistory-modal").hidePopover();
+                showToast('Berhasil', 'Education History baru berhasil ditambahkan!', 'success');
+                fetchEducationHistory(document.getElementById("search-year-input").value.trim());
+            } else {
+                const errorMessages = result.errors
+                    ? Object.values(result.errors).flat().map(error => error.message)
+                    : [result.message || `Terjadi kesalahan (status ${response.status}).`];
+                showToast('Gagal menambahkan Education History', errorMessages.join(' '), 'error');
+            }
+        } catch (error) {
+            console.error('Error adding Education History:', error);
+            showToast('Gagal menambahkan Education History', 'Tidak dapat terhubung ke server. Silakan coba lagi.', 'error');
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    if (edhistoryForm) {
+        edhistoryForm.addEventListener('submit', addEducationHistory);
+    }
 
 </script>
 {% endblock %}

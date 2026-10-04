@@ -33,6 +33,7 @@ def show_main(request):
         ),
         "last_login": last_login,
         "education_year_query": education_year_query,
+        "form": EdHistoryForm(),
     }
     return render(request, "home.html", global_context | context)
 
