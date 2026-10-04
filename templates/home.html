@@ -103,7 +103,8 @@
         const school = edhistory.school
         const description = edhistory.description
         const started_at_year = edhistory.started_at_year
-        const ended_at_year = edhistory.ended_at_year
+        let ended_at_year = edhistory.ended_at_year
+        if (!ended_at_year) ended_at_year = "Present"
 
         const edhistoryElementTemplate = document.getElementById("edhistory-element-template");
         const clone = edhistoryElementTemplate.content.cloneNode(true)
