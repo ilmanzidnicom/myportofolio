@@ -56,3 +56,14 @@ Beberapa masalah yang saya pecahkan adalah:
 Untuk autentikasi saya sudah menerapkannya pada tugas 3.
 
 Untuk konsep baru seperti permissions, saya mendapatkan referensi dari [Check permission inside a template in Django](https://stackoverflow.com/questions/9469590/check-permission-inside-a-template-in-django) dan `Petunjuk Implementasi Peran Editor` pada halaman tugas 4.
+
+## Tugas 5
+
+1. *Debouncing* adalah teknik menunda pengiriman *request* pencarian selama beberapa saat setelah pengguna selesai mengetik. *Debouncing* digunakan untuk mengurangi jumlah *request* yang dikirim ke server, sehingga server tidak *overload* saat pengguna mengetik untuk mencari data.
+2. *Await* berfungsi untuk menunggu `fetch()` sampai selesai sebelum melanjutkan eksekusi kode. Jika tidak menggunakan *await* maka *object* yang di-*return* adalah *object* `Promise`, bukan *response* yang diharapkan.
+3. Serangan XSS adalah serangan di mana seseorang dapat meng-*input* data XML pada *field* yang tersedia pada website kita. Data XML tersebut dapat mengandung kode yang akan dijalankan oleh *browser/client* saat me-*render* halaman website. AJAX/JavaScript lebih rentan terhadap serangan XSS dibanding template Django karena Django mempunyai *default* untuk meng-*escape* karakter. Sedangkan jika kita menggunakan AJAX/JavaScript secara manual, tanggung jawab untuk meng-*escape* karakter berada pada developer website.
+
+#### AI Disclosure Pada Tugas 5:
+
+1. Saya ingin tahu cara mem-*filter* `EdHistory.objects.all()` berdasarkan tahun. [Chat History](https://chatgpt.com/share/6ac380d6-45f8-83ec-b1c6-28c663a1d813)
+2. Saya ingin tahu cara mengonstruksi HTML dari JavaScript dengan cara meng-*copy* `<template>`. [Chat History](https://chatgpt.com/share/6ac382de-c298-83ec-b718-73941a71ab27)
