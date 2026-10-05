@@ -54,6 +54,15 @@ class EdHistoryForm(ModelForm):
             ),
         }
 
+    def clean_education_title(self):
+        return strip_tags(self.cleaned_data["education_title"]).strip()
+
+    def clean_school(self):
+        return strip_tags(self.cleaned_data["school"]).strip()
+
+    def clean_description(self):
+        return strip_tags(self.cleaned_data["description"]).strip()
+
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
