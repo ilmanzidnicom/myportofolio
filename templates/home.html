@@ -42,30 +42,204 @@
 
 <section class="ed-history">
     <div class="container">
-        <div class="box" style="max-width: 600px;">
-            <h1 style="margin-bottom: 20px; text-align: center;">Education History</h1> 
+        <div id="ed-history-box" class="box" style="max-width: 600px;">
+            <h1 style="margin-bottom: 20px; text-align: center;">Education History</h1>
+            <input type="number"
+                    id="search-year-input"
+                    placeholder="Cari berdasarkan tahun (e.g. 2022)"
+                    class="project-search__input"
+                    aria-label="Cari berdasarkan tahun (e.g. 2022)"
+                    style="margin-bottom: 18px;">
             {% if perms.main.add_edhistory %}
-            <a href="{% url 'main:create_education_history' %}" style="margin-bottom: 20px;" class="button project-add-button">
+            <button popovertarget="add-edhistory-modal" style="margin-bottom: 20px;" class="button project-add-button">
                 <span aria-hidden="true">+</span>
                 Tambah Education
-            </a>
+            </button>
             {% endif %}
 
-{% for education_history in all_education_history %}
-<pre>
-<b>• {{ education_history.education_title }}</b>
-{{ education_history.started_at_year }} – {% if education_history.is_ongoing %}Present{% else %}{{ education_history.ended_at_year }}{% endif %} | {{ education_history.school }}
-{{ education_history.description }}
-{% if perms.main.change_edhistory %}<a href="{% url 'main:update_education_history' education_history.id %}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a>{% endif %} {% if perms.main.delete_edhistory %}<button popovertarget="delete-edhistory-{{ education_history.id }}" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button>{% endif %}
-</pre>
-{% empty %}
-<pre><b>Belum ada data.</b></pre>
-{% endfor %}
 
-            {% for education_history in all_education_history %}
-                {% include "components/edhistory_delete_modal.html" with education_history=education_history %}
-            {% endfor %}
+<!-- Loading State -->
+<pre id="edhistory-loading" class="hide"><b>Memuat Education History...</b></pre>
+
+<!-- Empty State -->
+<pre id="edhistory-empty" class="hide"><b>Data kosong atau tidak ditemukan.</b></pre>
+
+<!-- Error State -->
+<pre id="edhistory-error" class="hide"><b>Gagal memuat data Education History. Silakan coba lagi.</b></pre>
+
+
+<template id="edhistory-element-template">
+<pre id="edhistory-element" class="hide">
+<b>• <span id="education-title">High School</span></b>
+<span id="started-at-year">2022</span> – <span id="ended-at-year">2025</span> | <span id="school">SMAN 8 Bekasi</span>
+<span id="description">I learned Python, CLI based workflow and binaries, and JavaScript.</span>
+<a id="update-education-btn" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a> <form id="delete-education-form" method="post" style="display:inline;">{% csrf_token %}<button id="delete-education-btn" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button></form></pre>
+</pre>
+</template>
+
+
         </div>
     </div>
 </section>
+
+{% if perms.main.add_edhistory %}
+    {% include "components/edhistory_form_modal.html" %}
+{% endif %}
+
+<script>
+    let edhistoryAbortController;
+    let searchDebounceTimer;
+    const SEARCH_DEBOUNCE_DELAY = 300;
+    const GET_EDUCATION_HISTORY_BASE_URL = "{% url 'main:get_education_history_json' %}";
+    const HAS_PERM_ADD_EDHISTORY = "{{ perms.main.add_edhistory|yesno:'true,false' }}" === "true";
+    const HAS_PERM_CHANGE_EDHISTORY = "{{ perms.main.change_edhistory|yesno:'true,false' }}" === "true";
+    const HAS_PERM_DELETE_EDHISTORY = "{{ perms.main.delete_edhistory|yesno:'true,false' }}" === "true";
+
+    function buildEducationHistoryElement(item) {
+        const edhistory = item.fields;
+        const edhistoryId = item.pk;
+
+        const education_title = edhistory.education_title
+        const school = edhistory.school
+        const description = edhistory.description
+        const started_at_year = edhistory.started_at_year
+        let ended_at_year = edhistory.ended_at_year
+        if (!ended_at_year) ended_at_year = "Present"
+
+        const edhistoryElementTemplate = document.getElementById("edhistory-element-template");
+        const clone = edhistoryElementTemplate.content.cloneNode(true)
+
+        clone.getElementById("education-title").textContent = education_title;
+        clone.getElementById("school").textContent = school;
+        clone.getElementById("description").textContent = description;
+        clone.getElementById("started-at-year").textContent = started_at_year;
+        clone.getElementById("ended-at-year").textContent = ended_at_year;
+
+        const updateUrl = "{% url 'main:update_education_history' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', edhistoryId);
+
+        const deleteUrl = "{% url 'main:delete_education_history' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', edhistoryId);
+
+        clone.getElementById("update-education-btn").href = updateUrl;
+        clone.getElementById("delete-education-form").action = deleteUrl;
+        clone.getElementById("delete-education-btn").onclick = () => {return confirm('Yakin ingin menghapus Education History ini?');}
+
+        if (!HAS_PERM_CHANGE_EDHISTORY) clone.getElementById("update-education-btn").remove();
+        if (!HAS_PERM_DELETE_EDHISTORY) clone.getElementById("delete-education-btn").remove();
+
+        edhistoryElementTemplate.before(clone);
+    }
+
+    async function fetchEducationHistory(educationYearQuery = "") {
+        if (edhistoryAbortController) edhistoryAbortController.abort();
+        edhistoryAbortController = new AbortController();
+
+        try {
+            displayPageSection({ showLoading: true });
+            const url = educationYearQuery ? `${GET_EDUCATION_HISTORY_BASE_URL}?education-year=${encodeURIComponent(educationYearQuery)}` : GET_EDUCATION_HISTORY_BASE_URL;
+        
+            const response = await fetch(url, {
+                headers: { 'Accept': 'application/json' },
+                signal: edhistoryAbortController.signal,
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch data');
+
+            const educationHistoryData = await response.json();
+
+            if (educationHistoryData.length === 0) {
+                displayPageSection({ showEmpty: true });
+            }
+            else {
+                document.querySelectorAll('#edhistory-element').forEach(e => e.remove());
+                educationHistoryData.forEach(item => {
+                    buildEducationHistoryElement(item)
+                    displayPageSection({ showElement: true });
+                })
+            }
+        }
+        catch (error) {
+            if (error.name === 'AbortError') return;
+            console.error('Error loading projects:', error);
+            displayPageSection({ showError: true });
+        }
+    }
+    fetchEducationHistory();
+
+    function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showElement = false }) {
+        document.getElementById("edhistory-loading").classList.toggle('hide', !showLoading);
+        document.getElementById("edhistory-error").classList.toggle('hide', !showError);
+        document.getElementById("edhistory-empty").classList.toggle('hide', !showEmpty);
+        document.querySelectorAll('#edhistory-element').forEach(e => e.classList.toggle('hide', !showElement));
+    }
+    
+
+    // Search
+    document.getElementById("search-year-input").addEventListener("input", function() {
+        clearTimeout(searchDebounceTimer);
+
+        searchDebounceTimer = setTimeout(function() {
+            fetchEducationHistory(document.getElementById("search-year-input").value.trim());
+        }, SEARCH_DEBOUNCE_DELAY);
+    });
+
+
+    // Add Education History
+    const CREATE_EDUCATION_HISTORY_URL = "{% url 'main:create_education_history_ajax' %}";
+    const edhistoryForm = document.getElementById('edhistory-form');
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function addEducationHistory(event) {
+        event.preventDefault();
+
+        const submitButton = edhistoryForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch(CREATE_EDUCATION_HISTORY_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: new FormData(edhistoryForm),
+            });
+            const result = await response.json().catch(() => ({}));
+
+            if (response.ok) {
+                edhistoryForm.reset();
+                document.getElementById("add-edhistory-modal").hidePopover();
+                showToast('Berhasil', 'Education History baru berhasil ditambahkan!', 'success');
+                fetchEducationHistory(document.getElementById("search-year-input").value.trim());
+            } else {
+                const errorMessages = result.errors
+                    ? Object.values(result.errors).flat().map(error => error.message)
+                    : [result.message || `Terjadi kesalahan (status ${response.status}).`];
+                showToast('Gagal menambahkan Education History', errorMessages.join(' '), 'error');
+            }
+        } catch (error) {
+            console.error('Error adding Education History:', error);
+            showToast('Gagal menambahkan Education History', 'Tidak dapat terhubung ke server. Silakan coba lagi.', 'error');
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    if (edhistoryForm) {
+        edhistoryForm.addEventListener('submit', addEducationHistory);
+    }
+
+</script>
 {% endblock %}

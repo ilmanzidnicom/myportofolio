@@ -44,33 +44,6 @@
 
         <!-- Project Grid -->
         <div id="grid" class="experience-grid project-grid hide">
-            {% for project in project_list %}
-                <article class="experience-card">
-                    {% if project.project_image_url %}
-                        <img src="{{ project.project_image_url }}"
-                                alt="Gambar {{ project.title }}"
-                                class="project-image">
-                    {% endif %}
-                    <h2>{{ project.title }}</h2>
-                    <span class="experience-category">{{ project.tech_stack }}</span>
-                    <p class="experience-description">{{ project.description }}</p>
-                    <div class="project-card-actions">
-                        <div class="project-actions">
-                            {% if project.project_url %}
-                                <a href="{{ project.project_url }}" class="button">Lihat Project</a>
-                            {% endif %}
-                            {% include "components/project_star.html" with project=project %}
-                            {% include "components/project_delete_modal.html" with project=project %}
-                        </div>
-                    </div>
-                </article>
-            {% empty %}
-                {% if title_query %}
-                    <p class="empty-state">Tidak ada project dengan nama tersebut.</p>
-                {% else %}
-                    <p class="empty-state">Belum ada project yang ditambahkan.</p>
-                {% endif %}
-            {% endfor %}
         </div>
     </div>
 </section>

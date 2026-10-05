@@ -11,6 +11,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 
 from .models import *
 from .forms import *
@@ -21,14 +22,8 @@ global_context = {
 
 # Create your views here.
 def show_main(request):
+    education_year_query = request.GET.get("education-year", "").strip()
     last_login = request.COOKIES.get('last_login')
-    json_response = get_education_history_json(request)
-
-    all_education_history = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    all_education_history = [edhistory.object for edhistory in all_education_history]
 
     context = {
         "npm": "2506621951",
@@ -36,8 +31,9 @@ def show_main(request):
         "bio": (
             "Hi there! My name is Ilman Zidni. I love computers, and I’m currently a student of Universitas Indonesia in Fasilkom! I’m always striving to learn new and exciting things about computers and technology. I love tackling projects, from building websites to tinkering with new programming languages and frameworks, because I learn best by trial and error. I enjoy sharing what I’ve learned with others, whether that’s helping a friend with their computer problems or contributing to projects."
         ),
-        "all_education_history": all_education_history,
         "last_login": last_login,
+        "education_year_query": education_year_query,
+        "form": EdHistoryForm(),
     }
     return render(request, "home.html", global_context | context)
 
@@ -154,9 +150,29 @@ def toggle_star(request, project_id):
     return redirect("main:show_projects")
 
 def get_education_history_json(request):
+    education_year_query = request.GET.get("education-year", "").strip()
     all_education_history = EdHistory.objects.all()
-    all_education_history_json = serializers.serialize("json", all_education_history)
-    return HttpResponse(all_education_history_json, content_type="application/json")
+
+    if education_year_query:
+        all_education_history = all_education_history\
+                                .filter(started_at_year__lte=education_year_query)\
+                                .filter(Q(ended_at_year__gte=education_year_query) | Q(ended_at_year__isnull=True))
+
+    # Konstruksi data JSON secara manual
+    data = []
+    for edhistory in all_education_history:
+        data.append({
+            "pk": str(edhistory.id),
+            "fields": {
+                "education_title": edhistory.education_title,
+                "school": edhistory.school,
+                "description": edhistory.description,
+                "started_at_year": edhistory.started_at_year,
+                "ended_at_year": edhistory.ended_at_year,
+            }
+        })
+
+    return JsonResponse(data, safe=False)
 
 @login_required(login_url="/login/")
 def create_education_history(request):
@@ -179,6 +195,24 @@ def create_education_history(request):
     }
 
     return render(request, "form.html", global_context | context)
+
+@require_POST
+def create_education_history_ajax(request):
+    if not request.user.has_perm("main.add_edhistory"):
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan Education History."},
+            status=403,
+        )
+
+    form = EdHistoryForm(request.POST)
+    if form.is_valid():
+        edhistory = form.save()
+        return JsonResponse(
+            {"message": "Education History berhasil ditambahkan.", "pk": str(edhistory.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
 
 @login_required(login_url="/login/")
 def update_education_history(request, edhistory_id):
