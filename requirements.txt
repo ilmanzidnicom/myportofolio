@@ -2,6 +2,7 @@ asgiref
 certifi
 charset-normalizer
 Django~=5.0
+djangorestframework~=3.18.3
 gunicorn
 idna
 psycopg2-binary
