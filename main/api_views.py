@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import *
-from main.permissions import IsPortfolioOwnerOrReadOnly, IsPortfolioOwnerOrEditorOrReadOnly
+from main.permissions import IsPortfolioOwnerOrReadOnly, IsPortfolioOwnerOrEditorOrReadOnly, HasPermChangeEdHistory
 from main.serializers import ProjectSerializer, EdHistorySerializer
 
 
@@ -90,3 +90,26 @@ def edhistory_add_or_list(request):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(["GET", "HEAD", "PUT", "PATCH", "DELETE"])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsPortfolioOwnerOrEditorOrReadOnly | HasPermChangeEdHistory])
+def edhistory_detail(request, edhistory_id):
+    edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
+
+    if request.method in ("GET", "HEAD"):
+        serializer = EdHistorySerializer(edhistory, context={"request": request})
+        return Response(serializer.data)
+
+    if request.method in ("DELETE"):
+        edhistory.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    if request.method in ("PUT", "PATCH"):
+        serializer = ProjectSerializer(
+            edhistory, data=request.data, partial=request.method == "PATCH",
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
