@@ -90,14 +90,14 @@
     let edhistoryAbortController;
     let searchDebounceTimer;
     const SEARCH_DEBOUNCE_DELAY = 300;
-    const GET_EDUCATION_HISTORY_BASE_URL = "{% url 'main:get_education_history_json' %}";
+    const GET_EDUCATION_HISTORY_BASE_URL = "{% url 'api:edhistory-add-or-list' %}";
     const HAS_PERM_ADD_EDHISTORY = "{{ perms.main.add_edhistory|yesno:'true,false' }}" === "true";
     const HAS_PERM_CHANGE_EDHISTORY = "{{ perms.main.change_edhistory|yesno:'true,false' }}" === "true";
     const HAS_PERM_DELETE_EDHISTORY = "{{ perms.main.delete_edhistory|yesno:'true,false' }}" === "true";
 
     function buildEducationHistoryElement(item) {
-        const edhistory = item.fields;
-        const edhistoryId = item.pk;
+        const edhistory = item;
+        const edhistoryId = item.id;
 
         const education_title = edhistory.education_title
         const school = edhistory.school
@@ -186,7 +186,7 @@
 
 
     // Add Education History
-    const CREATE_EDUCATION_HISTORY_URL = "{% url 'main:create_education_history_ajax' %}";
+    const CREATE_EDUCATION_HISTORY_URL = "{% url 'api:edhistory-add-or-list' %}";
     const edhistoryForm = document.getElementById('edhistory-form');
 
     function getCookie(name) {
