@@ -73,7 +73,7 @@
 <b>• <span id="education-title">High School</span></b>
 <span id="started-at-year">2022</span> – <span id="ended-at-year">2025</span> | <span id="school">SMAN 8 Bekasi</span>
 <span id="description">I learned Python, CLI based workflow and binaries, and JavaScript.</span>
-<a id="update-education-btn" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a> <form id="delete-education-form" method="post" style="display:inline;">{% csrf_token %}<button id="delete-education-btn" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button></form></pre>
+<a id="update-education-btn" data-edhistory-id="" data-detail-url="" data-education-title="" data-school="" data-description="" data-started-at-year="" data-ended-at-year="" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button">Update Education</a> <form id="delete-education-form" method="post" style="display:inline;">{% csrf_token %}<button id="delete-education-btn" style="margin-bottom: 20px; font-size: x-small;" class="button project-add-button button-danger">Delete Education</button></form></pre>
 </pre>
 </template>
 
@@ -84,6 +84,10 @@
 
 {% if perms.main.add_edhistory %}
     {% include "components/edhistory_form_modal.html" %}
+{% endif %}
+
+{% if perms.main.change_edhistory %}
+    {% include "components/edhistory_change_form_modal.html" %}
 {% endif %}
 
 <script>
@@ -150,6 +154,16 @@
 
         }
 
+        const updateButton = clone.getElementById("update-education-btn")
+
+        updateButton.dataset.edhistoryId = edhistoryId
+        updateButton.dataset.detailUrl = detailUrl
+        updateButton.dataset.educationTitle = education_title
+        updateButton.dataset.school = school
+        updateButton.dataset.description = description
+        updateButton.dataset.startedAtYear = started_at_year
+        updateButton.dataset.endedAtYear = ended_at_year == "Present" ? "" : ended_at_year
+
         if (!HAS_PERM_CHANGE_EDHISTORY) clone.getElementById("update-education-btn").remove();
         if (!HAS_PERM_DELETE_EDHISTORY) clone.getElementById("delete-education-btn").remove();
 
@@ -191,6 +205,57 @@
         }
     }
     fetchEducationHistory();
+
+    function populateUpdateForm() {
+        const modal = document.getElementById("change-edhistory-modal");
+
+        document.addEventListener("click", event => {
+            const link = event.target.closest("#update-education-btn");
+
+            if (!link) return;
+
+            event.preventDefault();
+
+            modal.querySelector("#id_education_title").value = link.dataset.educationTitle
+            modal.querySelector("#id_school").value = link.dataset.school
+            modal.querySelector("#id_description").value = link.dataset.description
+            modal.querySelector("#id_started_at_year").value = link.dataset.startedAtYear
+            modal.querySelector("#id_ended_at_year").value = link.dataset.endedAtYear
+
+            modal.querySelector('#submit-button').onclick = async (e) => {
+                e.preventDefault()
+
+                const edhistoryChangeForm = modal.querySelector('#edhistory-change-form');
+
+                try {
+                    const response = await fetch(link.dataset.detailUrl, {
+                        method: 'PUT',
+                        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                        body: new FormData(edhistoryChangeForm),
+                    });
+                    const result = await response.json().catch(() => ({}));
+
+                    if (response.ok) {
+                        showToast(`Berhasil (${response.status})`, 'Education History berhasil diubah!', 'success');
+                        fetchEducationHistory(document.getElementById("search-year-input").value.trim());
+                    }
+                    else {
+                        const errorMessages = result.errors
+                            ? Object.values(result.errors).flat().map(error => error.message)
+                            : [result.message || `Terjadi kesalahan (status ${response.status}).`];
+                        showToast('Gagal mengubah Education History', errorMessages.join(' '), 'error');
+                    }
+
+                }
+                catch {}
+
+                modal.hidePopover();
+            }
+
+            modal.showPopover();
+        })
+    }
+    populateUpdateForm()
 
     function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showElement = false }) {
         document.getElementById("edhistory-loading").classList.toggle('hide', !showLoading);

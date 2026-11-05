@@ -106,7 +106,7 @@ def edhistory_detail(request, edhistory_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     if request.method in ("PUT", "PATCH"):
-        serializer = ProjectSerializer(
+        serializer = EdHistorySerializer(
             edhistory, data=request.data, partial=request.method == "PATCH",
             context={"request": request},
         )
