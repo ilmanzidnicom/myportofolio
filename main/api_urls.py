@@ -8,4 +8,7 @@ urlpatterns = [
     path("projects/", api_views.project_list, name="project-list"),
     path("projects/<uuid:project_id>/", api_views.project_detail, name="project-detail"),
     path("projects/<uuid:project_id>/star/", api_views.project_star, name="project-star"),
+
+    path("edhistory/", api_views.edhistory_add_or_list, name="edhistory-add-or-list"),
+    path("edhistory/<uuid:edhistory_id>", api_views.edhistory_detail, name="edhistory_detail"),
 ]

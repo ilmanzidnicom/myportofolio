@@ -67,3 +67,15 @@ Untuk konsep baru seperti permissions, saya mendapatkan referensi dari [Check pe
 
 1. Saya ingin tahu cara mem-*filter* `EdHistory.objects.all()` berdasarkan tahun. [Chat History](https://chatgpt.com/share/6ac380d6-45f8-83ec-b1c6-28c663a1d813)
 2. Saya ingin tahu cara mengonstruksi HTML dari JavaScript dengan cara meng-*copy* `<template>`. [Chat History](https://chatgpt.com/share/6ac382de-c298-83ec-b718-73941a71ab27)
+
+## Tugas 6
+
+1. REST (Representational State Transfer) adalah gaya arsitektur dan aturan-aturan untuk merancang komunikasi antara server dan klient. Mengembalikan JSON saja tidak cukup untuk menyebut sebuah API sebagai RESTful karena *path* harus teratur sesuai aturan-aturan spesifikasi REST. Bedanya `PUT` dengan `PATCH` adalah `PUT` dipakai untuk mengubah data secara keseluruhan dalam satu request, sedangkan `PATCH` hanya mengubah data secara *partial* tanpa harus mengirim keseluruhan datanya.
+2. Peran *serializer* adalah untuk mengubah struktur data kompleks *Model* menjadi *JSON*. Keuntungannya menggunakan *serializer* dibandingkan merakit *JSON* secara manual adalah dapat menghindari pengulangan kode, dan membantu menggeneralisasikan kode. Serializer juga dapat melakukan validasi data.
+3. Autentikasi adalah proses memastikan/identifikasi pengguna yang melakukan request. Otorisasi adalah proses untuk menentukan apakah pengguna yang sudah ter-autentikasi mempunyai hak/izin untuk melakukan suatu tindakan. Hak akses tidak cukup dengan hanya menyembunyikan tombol, karena *client* dapat dimodifikasi untuk mengirim data di luar implementasi. Jadi harus diperiksa di *server*.
+4. Ancaman CSRF tidak hilang walaupun ada `SessionAuthentication`, karena serangan CSRF terjadi pada *client/browser*. Tanpa CSRF token, *server* tidak akan bisa membedakan apakah seorang *user* benar-benar ingin melakukan suatu request, atau request tersebut berasal dari website lain yang menggunakan *client* punya *user* untuk melakukan suatu request atas nama *user*-nya. Oleh karena itu, `force_authenticate` tidak cukup untuk membuktikan bahwa perlindungan CSRF berjalan.
+
+#### AI Disclosure Pada Tugas 6:
+*Saya tidak menggunakan AI pada tugas 6.*
+
+Saya hanya mengikuti alur dan *syntax* yang sudah dicontohkan pada tutorial 7.

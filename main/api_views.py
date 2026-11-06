@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import (
@@ -7,9 +8,9 @@ from rest_framework.decorators import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from main.models import Project
-from main.permissions import IsPortfolioOwnerOrReadOnly
-from main.serializers import ProjectSerializer
+from .models import *
+from main.permissions import IsPortfolioOwnerOrReadOnly, IsPortfolioOwnerOrEditorOrReadOnly, HasPermChangeEdHistory
+from main.serializers import ProjectSerializer, EdHistorySerializer
 
 
 @api_view(["GET", "HEAD", "POST"])
@@ -65,3 +66,50 @@ def project_star(request, project_id):
         project.starred_by.add(request.user)
     serializer = ProjectSerializer(project, context={"request": request})
     return Response(serializer.data)
+
+@api_view(["GET", "HEAD", "POST"])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsPortfolioOwnerOrReadOnly])
+def edhistory_add_or_list(request):
+    if request.method in ("GET", "HEAD"):
+        education_year_query = request.query_params.get("education-year", "").strip()
+        all_education_history = EdHistory.objects.all()
+
+        if education_year_query:
+            all_education_history = all_education_history\
+                                    .filter(started_at_year__lte=education_year_query)\
+                                    .filter(Q(ended_at_year__gte=education_year_query) | Q(ended_at_year__isnull=True))
+        
+        serializer = EdHistorySerializer(
+            all_education_history, many=True, context={"request": request},
+        )
+        return Response(serializer.data)
+
+    if request.method in ("POST"):
+        serializer = EdHistorySerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(["GET", "HEAD", "PUT", "PATCH", "DELETE"])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsPortfolioOwnerOrEditorOrReadOnly | HasPermChangeEdHistory])
+def edhistory_detail(request, edhistory_id):
+    edhistory = get_object_or_404(EdHistory, pk=edhistory_id)
+
+    if request.method in ("GET", "HEAD"):
+        serializer = EdHistorySerializer(edhistory, context={"request": request})
+        return Response(serializer.data)
+
+    if request.method in ("DELETE"):
+        edhistory.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    if request.method in ("PUT", "PATCH"):
+        serializer = EdHistorySerializer(
+            edhistory, data=request.data, partial=request.method == "PATCH",
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
