@@ -58,7 +58,18 @@ class EdHistorySerializer(serializers.ModelSerializer):
         return value
 
     def validate_school(self, value):
-        return strip_tags(value)
+        value = strip_tags(value).strip()
+        if not value:
+            raise serializers.ValidationError("School cannot be empty.")
+        return value
 
     def validate_description(self, value):
-        return strip_tags(value)
+        value = strip_tags(value).strip()
+        if not value:
+            raise serializers.ValidationError("Description cannot be empty.")
+        return value
+
+    def validate_started_at_year(self, value):
+        if not value:
+            raise serializers.ValidationError("Started at year cannot be empty.")
+        return value
