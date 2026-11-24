@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from rest_framework.request import Request
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import (
@@ -113,3 +114,11 @@ def edhistory_detail(request, edhistory_id):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def api_logout(request: Request):
+    # Delete request.auth if it is not None, then return HTTP 204 No Content
+    if request.auth is not None:
+        request.auth.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
